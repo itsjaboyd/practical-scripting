@@ -16,12 +16,17 @@ import datetime
 import shutil
 import logging
 
-# all static global variables that will not change or are calculated at runtime
-DAILYS_PATH = "/Users/jasonboyd/Notes/Dailys/"
-TEMPLATE_DAILYS_PATH = "/Users/jasonboyd/Notes/Extras/Templates/daily-note.md"
-LOGGING_FILE = "/Users/jasonboyd/Development/Logs/Obsidian/create-daily-note.log"
+# all static global variables that will not change or are calculated at runtime with args
+DAILYS_PATH = "C:\\Users\\jason\\Personal-Notes\\Dailys\\"
+TEMPLATE_DAILYS_PATH = "C:\\Users\\jason\\Personal-Notes\\Extras\\Templates\\daily-note.md"
+LOGGING_FILE = "C:\\Users\\jason\\Development\\Logs\\Obsidian\\create-daily-note.log"
 DETERMINER = "transpired"
 
+# caller supplied all three required paths for note creation so use args
+if len(sys.argv) == 4:
+    DAILYS_PATH = sys.argv[1]
+    TEMPLATE_DAILYS_PATH = sys.argv[2]
+    LOGGING_FILE = sys.argv[3]
 
 # logging creation for logging purposes as this script will run automatically
 logger = logging.getLogger("create-daily-note")
@@ -40,74 +45,97 @@ def main():
     createdDailysPath = os.path.join(currentDailysPath, today.isoformat() + ".md")
     createdNoteName = os.path.split(createdDailysPath)[-1]
 
-    # 1. check to make sure there is no currently existing daily note
-    checkExists(createdDailysPath)
+    # 1. preliminary check to ensure the script has real file and path locations
+    checkPathsExist([DAILYS_PATH, TEMPLATE_DAILYS_PATH, LOGGING_FILE])
 
-    # 2. copy the template file and move it into current daily path
+    # 2. check to make sure there is no currently existing daily note
+    checkDailyExists(createdDailysPath)
+
+    # 3. copy the template file and move it into current daily path
     copyPath = copyNote(TEMPLATE_DAILYS_PATH, currentDailysPath)
 
-    # 3. rename the file from the template name to its current daily name
+    # 4. rename the file from the template name to its current daily name
     renameDailyNote(copyPath, createdDailysPath, createdNoteName)
 
-    # 4. sanitize the daily note of extraneous dashes used in template
+    # 5. sanitize the daily note of extraneous dashes used in template
     sanitizeDailyNote(createdDailysPath, DETERMINER, createdNoteName)
 
-    # 5. log a final success message to the logging file
+    # log a final success message to the logging file
     logger.info(f"Creation of daily note {createdNoteName} completed.")
 
-def checkExists(dailyPath):
+def checkPathsExist(pathList):
+    """Check to make sure all supplied paths in pathList exist."""
+
+    allExist = True
+    for path in pathList:
+        if not os.path.exists(path):
+            allExist = False
+            break
+    if not allExist:
+        logger.warning("Required paths do not exist, aborting!")
+        sys.exit(1)
+
+def checkDailyExists(dailyPath):
     """Check to ensure the daily note doesn't already exist and exit if it does."""
 
     if os.path.exists(dailyPath):
         logger.warning("Today's daily note already exists, aborting!")
-        sys.exit(1)
+        sys.exit(2)
 
 def copyNote(targetFile, destDirectory):
     """Copy the targetFile to a destDirectory and exit if it fails."""
 
-    status = {"copied": False, "copyPath": None, "message": ""}
+    copied, copyPath, message = False, None, ""
     try: # attempt to copy the targetFile to a destDirectory
         copyPath = shutil.copy(targetFile, destDirectory)
-        status["copyPath"] = copyPath
-    except FileNotFoundError:
-        status["message"] = f"Cannot copy a non-existent template note: {targetFile}"
+    except FileNotFoundError as fnfe:
+        if not os.path.exists(targetFile):
+            message = f"Cannot copy a non-existent template note: {targetFile}"
+        elif not os.path.exists(destDirectory):
+            logger.info(f"Destination directory {destDirectory} will be created for this note.")
+            os.makedirs(destDirectory)
+            copyPath = shutil.copy(targetFile, destDirectory)
+            message = f"Successfully copied template to created directory: {destDirectory}"
+            copied = True
+        else: # some other uncaught FileNotFoundError that occurred
+            message = f"Failed to copy template: {fnfe}"
     except:
-        status["message"] = "Failed to copy template due to an exception."
+        message = "Failed to copy template due to an exception."
     else: # there were no exceptions with the copy attempt
-        status["copied"] = True
-        status["message"] = f"Successfully copied template note to dailys directory: {destDirectory}."
-    if not status["copied"]:
-        logger.error(status['message'])
-        sys.exit(2)
-    logger.info(status["message"])
+        copied = True
+        message = f"Successfully copied template note to dailys directory: {destDirectory}."
+    if not copied:
+        logger.error(message)
+        sys.exit(3)
+    logger.info(message)
     return copyPath
 
 def renameDailyNote(notePath, newName, noteName):
     """Rename the given file notePath to newName and exit if it fails."""
 
-    status = {"renamed": False, "message": ""}
+    renamed, message = False, ""
     try: # attempt to rename the note path to today's note name
         os.rename(notePath, newName)
     except FileExistsError:
-        status["message"] = "File already exists, cannot rename."
+        message = "File already exists, cannot rename."
     except FileNotFoundError:
-        status["message"] = "Supplied note path not found, cannot rename."
+        message = "Supplied note path not found, cannot rename."
     except:
-        status["message"] = "Failed to rename due to an exception."
+        message = "Failed to rename due to an exception."
     else: # there were no exceptions with the rename attempt
-        status["renamed"] = True
-        status["message"] = f"Successfully renamed template to daily note {noteName}."
-    if not status["renamed"]:
-        logger.error(status['message'])
+        renamed = True
+        message = f"Successfully renamed template to daily note {noteName}."
+    if not renamed:
+        logger.error(message)
         sys.exit(3)
-    logger.info(status["message"])
+    logger.info(message)
 
 def sanitizeDailyNote(notePath, determiner, noteName):
     """Open the notePath and modify select lines that match the determiner."""
 
     if not os.path.exists(notePath):
         logger.error(f"Cannot sanitize non-existent note {notePath}.")
-        sys.exit(4)
+        sys.exit(5)
 
     with open(notePath, "r+") as notePathFile:
         noteLines = notePathFile.readlines()
