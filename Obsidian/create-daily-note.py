@@ -15,12 +15,14 @@ import sys
 import datetime
 import shutil
 import logging
+import re
 
 # all static global variables that will not change or are calculated at runtime with args
 DAILYS_PATH = "C:\\Users\\jason\\Personal-Notes\\Dailys\\"
 TEMPLATE_DAILYS_PATH = "C:\\Users\\jason\\Personal-Notes\\Extras\\Templates\\daily-note.md"
 LOGGING_FILE = "C:\\Users\\jason\\Development\\Logs\\Obsidian\\create-daily-note.log"
 DETERMINER = "transpired"
+HEADER_INDEX = 8
 
 # caller supplied all three required paths for note creation so use args
 if len(sys.argv) == 4:
@@ -36,7 +38,7 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-def main():
+def main_real():
     """Perform all steps required to create today's daily note."""
 
     # all date specific variables that are calculated at runtime
@@ -147,6 +149,59 @@ def sanitizeDailyNote(notePath, determiner, noteName):
         notePathFile.truncate(0)
         notePathFile.writelines(noteLines)
     logger.info(f"Successfully sanitized daily note {noteName}.")
+
+
+def updateTemplateDates(notePath, newDate, updateHeader=True):
+    """Given a daily note, update its date variables to match the supplied date string."""
+
+    if type(newDate) == str:
+        newDate = datetime.date.fromisoformat(newDate)
+    elif type(newDate) != datetime.date:
+        raise TypeError("Supplied newDate must be of time datetime.date.")
     
+    matcher = re.compile("[\d]{4}[-][\d]{2}[-][\d]{2}")
+    
+    with open(notePath, "r+") as notePathFile:
+        noteLines = notePathFile.readlines()
+        for index in range(len(noteLines)):
+            if index == HEADER_INDEX and updateHeader:
+                noteLines[index] = newDate.strftime("# %A, %B %#d, %Y\n")
+
+            matches = matcher.finditer(noteLines[index])
+            if matches: # there are matches in the line
+                for match in matches:
+                    inputDate = newDate.isoformat()
+                    dayNavigation = ""
+                    try: # attempt to get any additional information about day links
+                        dayNavigation = noteLines[index][match.end():match.end() + 10]
+                    except:
+                        pass
+
+                    conversion = {"|yesterday": 1, "|tomorrow'": -1}
+                    if any(key in dayNavigation for key in conversion.keys()):
+                        correctDate = newDate - datetime.timedelta(days=conversion[dayNavigation])
+                        inputDate = correctDate.isoformat()
+                    noteLines[index] = noteLines[index].replace(match.group(), inputDate, 1)
+        
+        # put the index at beginning, clear the file, and write the new lines
+        notePathFile.seek(0)
+        notePathFile.truncate(0)
+        notePathFile.writelines(noteLines)
+
+def main():
+    newDates = [
+        "2024-12-24",
+        "2024-12-25",
+        "2024-12-26",
+        "2024-12-27",
+        "2024-12-28",
+        "2024-12-29",
+        "2024-12-30"
+    ]
+
+    for newDate in newDates:
+        notePath = DAILYS_PATH + f"2024\\December\\{newDate}.md"
+        updateTemplateDates(notePath, newDate)
+
 if __name__ == "__main__":
     main()
