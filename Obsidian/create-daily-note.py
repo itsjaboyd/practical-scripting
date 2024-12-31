@@ -7,7 +7,7 @@
 
     Author: Jason Boyd
     Date: December 5, 2024
-    Modified: December 6, 2024
+    Modified: December 31, 2024
 """""
 
 import os
@@ -38,7 +38,7 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-def main_real():
+def main():
     """Perform all steps required to create today's daily note."""
 
     # all date specific variables that are calculated at runtime
@@ -187,21 +187,6 @@ def updateTemplateDates(notePath, newDate, updateHeader=True):
         notePathFile.seek(0)
         notePathFile.truncate(0)
         notePathFile.writelines(noteLines)
-
-def main():
-    newDates = [
-        "2024-12-24",
-        "2024-12-25",
-        "2024-12-26",
-        "2024-12-27",
-        "2024-12-28",
-        "2024-12-29",
-        "2024-12-30"
-    ]
-
-    for newDate in newDates:
-        notePath = DAILYS_PATH + f"2024\\December\\{newDate}.md"
-        updateTemplateDates(notePath, newDate)
 
 if __name__ == "__main__":
     main()
