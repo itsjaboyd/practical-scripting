@@ -1,4 +1,4 @@
-"""""
+"""
     Create Obsidian's daily note feature automatically using a scheduled 
     task and this Python script. When daily notes are forgotten to be 
     made, the manual process of plugging in correct dates is just lame. 
@@ -8,7 +8,7 @@
     Author: Jason Boyd
     Date: December 5, 2024
     Modified: December 31, 2024
-"""""
+"""
 
 import os
 import sys
@@ -149,44 +149,6 @@ def sanitizeDailyNote(notePath, determiner, noteName):
         notePathFile.truncate(0)
         notePathFile.writelines(noteLines)
     logger.info(f"Successfully sanitized daily note {noteName}.")
-
-
-def updateTemplateDates(notePath, newDate, updateHeader=True):
-    """Given a daily note, update its date variables to match the supplied date string."""
-
-    if type(newDate) == str:
-        newDate = datetime.date.fromisoformat(newDate)
-    elif type(newDate) != datetime.date:
-        raise TypeError("Supplied newDate must be of time datetime.date.")
-    
-    matcher = re.compile("[\d]{4}[-][\d]{2}[-][\d]{2}")
-    
-    with open(notePath, "r+") as notePathFile:
-        noteLines = notePathFile.readlines()
-        for index in range(len(noteLines)):
-            if index == HEADER_INDEX and updateHeader:
-                noteLines[index] = newDate.strftime("# %A, %B %#d, %Y\n")
-
-            matches = matcher.finditer(noteLines[index])
-            if matches: # there are matches in the line
-                for match in matches:
-                    inputDate = newDate.isoformat()
-                    dayNavigation = ""
-                    try: # attempt to get any additional information about day links
-                        dayNavigation = noteLines[index][match.end():match.end() + 10]
-                    except:
-                        pass
-
-                    conversion = {"|yesterday": 1, "|tomorrow'": -1}
-                    if any(key in dayNavigation for key in conversion.keys()):
-                        correctDate = newDate - datetime.timedelta(days=conversion[dayNavigation])
-                        inputDate = correctDate.isoformat()
-                    noteLines[index] = noteLines[index].replace(match.group(), inputDate, 1)
-        
-        # put the index at beginning, clear the file, and write the new lines
-        notePathFile.seek(0)
-        notePathFile.truncate(0)
-        notePathFile.writelines(noteLines)
 
 if __name__ == "__main__":
     main()
