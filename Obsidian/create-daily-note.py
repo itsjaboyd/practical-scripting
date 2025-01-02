@@ -22,7 +22,6 @@ DAILYS_PATH = "C:\\Users\\jason\\Personal-Notes\\Dailys\\"
 TEMPLATE_DAILYS_PATH = "C:\\Users\\jason\\Personal-Notes\\Extras\\Templates\\daily-note.md"
 LOGGING_FILE = "C:\\Users\\jason\\Development\\Logs\\Obsidian\\create-daily-note.log"
 DETERMINER = "transpired"
-HEADER_INDEX = 8
 
 # caller supplied all three required paths for note creation so use args
 if len(sys.argv) == 4:
