@@ -7,6 +7,7 @@
 """
 
 import datetime
+import pathlib
 import re
 
 ISO_DATE_REGEX = r"[\d]{4}[-][\d]{2}[-][\d]{2}"
@@ -78,16 +79,29 @@ def getNotePaths(directory, recursive=False):
     """From a supplied directory, get all existing notes, optionally recursive."""
     pass
 
-def updateDailyDates(noteObject, useFilenameDate=True, newDate=None, updateHeader=True):
-    """Given a directory, list of notes, or single note, update the ISO dates in note body."""
+def getNotesIterable(noteObject):
+    """Given a directory, list of notes, or single note, gather all markdown files."""
 
     noteIterable = []
     if isinstance(noteObject, str):
         # could be a note file path or a directory
+        objectPath = pathlib.Path(noteObject)
+        if objectPath.is_file():
+            if objectPath.suffix != ".md": # not a markdown file
+                raise TypeError(f"Supplied file is not a markdown (note) file: {objectPath.name}")
+            noteIterable.append(noteObject)
+        elif os.path.isdir(noteObject):
+            pass
     elif isinstance(noteObject, list)
         # could be a list of note paths or list of directories
     else: # user supplied invalid note object type for processing
         raise ValueError(f"Cannot update notes from note object: {noteObject}.")
+
+    return noteIterable
+
+def updateDailyDates(noteObject, useFilenameDate=True, newDate=None, updateHeader=True, recursive=False):
+    """Given a directory, list of notes, or single note, update the ISO dates in note body."""
+
 
     for notePath in noteIterable:
         if useFileNameDate and newDate is not None:
