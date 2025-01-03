@@ -49,8 +49,16 @@ def extractDateObject(dateObject):
     return convertDate
 
 
-def flattenList(multiList, newlist):
-    """Given a multi-dimensional list, flatten it for processing linearly."""
+def flattenList(multiList, newlist=[]):
+    """Given a multi-dimensional list, flatten it for processing linearly.
+
+    Args:
+        multiList (list): the multidimensional list to flatten.
+        newList (list): the starting list to add elements from multiList into.
+
+    Returns:
+        list: the flattened list that is one-dimensional, containing all elements.
+    """
 
     for element in multiList:
         if isinstance(element, list):
@@ -61,7 +69,20 @@ def flattenList(multiList, newlist):
 
 
 def getNotesList(noteObject, recursively):
-    """Given a directory, list of notes, or single note, gather all markdown files."""
+    """Given a directory, list of notes, or single note, gather all markdown files.
+
+    Args:
+        noteObject (str): a directory or note file string to process and add to noteList.
+        noteObject (list): a list of directories or note files to process and add to notelist.
+        recursively (bool): optional boolean flag to find all notes in subdirectories.
+
+    Raises:
+        TypeError: if noteObject is a (multidimensional) list and elements are not strings.
+        ValueError: if noteObject is something other than a string or list.
+
+    Returns:
+        list: a list of gathered markdown file notes found from the supplied noteObject.
+    """
 
     noteList = []
     if isinstance(noteObject, str):
@@ -78,7 +99,19 @@ def getNotesList(noteObject, recursively):
 
 
 def processNoteDirectory(directory, recursively):
-    """From a supplied directory, get all existing notes, optionally recursively."""
+    """From a supplied directory, get all existing notes, optionally recursively.
+
+    Args:
+        directory (str): a stinrg directory to gather markdown notes from.
+        recursively (bool): optionally recursively gather notes in subdirectories.
+
+    Raises:
+        ValueError: if directory is not a pathlib.Path object.
+        TypeError: if directory is not actually a directory.
+
+    Returns:
+        list: the list of all found markdown (.md) notes from directory
+    """
 
     if not isinstance(directory, pathlib.Path):
         raise ValueError(f"Supplied directory is not a Path object: {directory}.")
@@ -91,7 +124,21 @@ def processNoteDirectory(directory, recursively):
 
 
 def processNoteString(noteString, recursively):
-    """Given a note path string, return a list of paths, be it a file or directory."""
+    """Given a note path string, return a list of paths, be it a file or directory.
+
+    Args:
+        noteString (str): the note string object used to process note files from, 
+            could be a directory or a note file itself.
+        recursively (bool): optionally gather notes in subdirectories when processing
+            the noteString object, passed from calling function to process functions.
+
+    Raises:
+        TypeError: if the noteString is a note path, but not a mardown note file.
+
+    Returns:
+        list: a list to iterate over that contains all found notes from processing
+            the noteString object, optionally recursively for subdirectories.
+    """
     
     noteList = []
     if isinstance(noteString, str):
@@ -106,7 +153,17 @@ def processNoteString(noteString, recursively):
 
 
 def regexMatchesString(regexString, matchString):
-    """Compile the supplied regex string and return a list of matches from a string."""
+    """Compile the supplied regex string and return a list of matches from a string.
+
+    Args:
+        regexString (str): the regex matcher to compile and find matches with.
+        matchString (str): the actual string to find matches in using regex.
+
+    Returns:
+        list: the list of found matches within the string from regex matches. 
+            Since python re.finditer() returns an interable and not a list, 
+            the function returns a list for typical list properties and functions.
+    """
 
     matcher = re.compile(regexString)
     matches = matcher.finditer(matchString)
@@ -115,7 +172,17 @@ def regexMatchesString(regexString, matchString):
 
 
 def replaceLineMatches(lineString, index, newDate, updateHeader):
-    """Given a string line, replace its ISO format dates with newDate and other updates."""
+    """Given a string line, replace its ISO format dates with newDate and other updates.
+
+    Args:
+        lineString (str): just a string to replace found matches with newDate.
+        index (int): the index from a line in a note file used for checks and header updates.
+        newDate (pathlib.Path): the date to replace matches with in the lineString.
+        updateHeader (bool): update the daily note header with a strftime date.
+
+    Returns:
+        str: the updated lineString with replaced newDate ISO date matches.
+    """
 
     if index == HEADER_INDEX and updateHeader:
         return newDate.strftime("# %A, %B %#d, %Y\n")
@@ -138,7 +205,16 @@ def replaceLineMatches(lineString, index, newDate, updateHeader):
 
 
 def updateDailyDates(noteObject, newDate=None, updateHeader=True, recursively=False):
-    """Given a directory, list of notes, or single note, update the ISO dates in note body."""
+    """Given a directory, list of notes, or single note, update the ISO dates in note body.
+
+    Args:
+        noteObject (any): object denoting a string directory, note path, or list to process.
+        newDate (any, optional): an optional new date to replace ISO date matches with; 
+            strings should be supplied as ISO formatted (YYYY-MM-DD). Defaults to None.
+        updateHeader (bool, optional): flag to update the daily note header with the 
+            supplied newDate in a strftime output. Defaults to True.
+        recursively (bool, optional): update notes in found subdirectories. Defaults to False.
+    """
 
     noteList = getNotesList(noteObject, recursively)
     for notePath in noteList:
@@ -147,7 +223,15 @@ def updateDailyDates(noteObject, newDate=None, updateHeader=True, recursively=Fa
 
 
 def updateDatesHandler(notePath, newDate, updateHeader):
-    """Given a daily note, update its date variables to match the supplied date string."""
+    """Given a daily note, update its ISO date matches to match the supplied newDate.
+        This function will open the file, read its lines and overwrite with all 
+        processed new lines.
+
+    Args:
+        notePath (str): the note path string to open and write to.
+        newDate (any): the new date to replace matches with.
+        updateHeader (bool): update the daily note header with the newDate.
+    """
     newDate = extractDateObject(newDate)
     
     with open(notePath, "r+") as notePathFile:
