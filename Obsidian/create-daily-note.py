@@ -15,14 +15,22 @@ import sys
 import datetime
 import shutil
 import logging
+import subprocess
+import time
 import re
 
 # all static global variables that will not change or are calculated at runtime with args
-DAILYS_PATH = "C:\\Users\\jason\\Personal-Notes\\Dailys\\"
+BASE_DAILYS_PATH = "C:\\Users\\jason\\Personal-Notes\\Dailys\\"
 TEMPLATE_DAILYS_PATH = "C:\\Users\\jason\\Personal-Notes\\Extras\\Templates\\daily-note.md"
 LOGGING_FILE = "C:\\Users\\jason\\Development\\Logs\\Obsidian\\create-daily-note.log"
 DETERMINER = "transpired"
 HEADER_INDEX = 8
+
+    # all date specific variables that are calculated at runtime
+today = datetime.date.today()
+DAILYS_PATH = os.path.join(BASE_DAILYS_PATH, f"{today.year}/{today.strftime('%B')}/")
+DAILY_PATH = os.path.join(DAILYS_PATH, today.isoformat() + ".md")
+DAILY_NAME = os.path.split(DAILY_PATH)[-1]
 
 # caller supplied all three required paths for note creation so use args
 if len(sys.argv) == 4:
@@ -37,33 +45,50 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.DEBUG
 )
-
 def main():
-    """Perform all steps required to create today's daily note."""
+    openVault = "obsidian://open?vault=Personal-Notes"
+    openDaily = "obsidian://daily?vault=Personal-Notes"
+    fillTemplates = "obsidian://adv-uri?vault=Personal-Notes^&commandid=templater-obsidian%3Areplace-in-file-templater"
 
-    # all date specific variables that are calculated at runtime
-    today = datetime.date.today()
-    currentDailysPath = os.path.join(DAILYS_PATH, f"{today.year}/{today.strftime('%B')}/")
-    createdDailysPath = os.path.join(currentDailysPath, today.isoformat() + ".md")
-    createdNoteName = os.path.split(createdDailysPath)[-1]
+    commandOrder = [fillTemplates, openDaily, openVault]
+    while commandOrder:
+        currentCommand = commandOrder.pop()
+        result = None
+        try: # attempt to use Window's specific startfile method
+            result = subprocess.run(["start", currentCommand], shell=True, capture_output=True, text=True)
+        except Exception as failure:
+            errorMessage = f"Unable to run Obsidian URI command {currentCommand}: {failure}"
+            logger.error(f"{errorMessage}, aborting.")
+            return
+        if result.returncode != 0:
+            errorMessage = f"Obsidian URI command {currentCommand} failed with output: {result.stderr}"
+            logger.error(f"{errorMessage}, aborting.")
+            return
+        time.sleep(10)
+        
+    goodMessage = f"Successfully ran Obsidian URI commands to instantiate {DAILY_NAME}."
+    logger.info(goodMessage)
+
+def oldMain():
+    """Perform all steps required to create today's daily note."""
 
     # 1. preliminary check to ensure the script has real file and path locations
     checkPathsExist([DAILYS_PATH, TEMPLATE_DAILYS_PATH, LOGGING_FILE])
 
     # 2. check to make sure there is no currently existing daily note
-    checkDailyExists(createdDailysPath)
+    checkDailyExists(DAILY_PATH)
 
     # 3. copy the template file and move it into current daily path
-    copyPath = copyNote(TEMPLATE_DAILYS_PATH, currentDailysPath)
+    copyPath = copyNote(TEMPLATE_DAILYS_PATH, DAILYS_PATH)
 
     # 4. rename the file from the template name to its current daily name
-    renameDailyNote(copyPath, createdDailysPath, createdNoteName)
+    renameDailyNote(copyPath, DAILY_PATH, DAILY_NAME)
 
     # 5. sanitize the daily note of extraneous dashes used in template
-    sanitizeDailyNote(createdDailysPath, DETERMINER, createdNoteName)
+    sanitizeDailyNote(DAILY_PATH, DETERMINER, DAILY_NAME)
 
     # log a final success message to the logging file
-    logger.info(f"Creation of daily note {createdNoteName} completed.")
+    logger.info(f"Creation of daily note {DAILY_NAME} completed.")
 
 def checkPathsExist(pathList):
     """Check to make sure all supplied paths in pathList exist."""
