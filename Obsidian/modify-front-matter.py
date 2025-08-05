@@ -35,9 +35,7 @@ def replace_files_frontmatter(file_list, expected, replace):
             file_path = pathlib.Path(file_path)
         result = replace_file_frontmatter(file_path, expected, replace)
         status = "success" if result else "failure"
-        message = (
-            f"Replace {expected} with {replace} resulted {status} for {file_path}."
-        )
+        message = f"Replace {expected} with {replace} resulted {status} for {file_path}."
         results.append(message)
     return results
 

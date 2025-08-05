@@ -29,7 +29,7 @@ def get_front_matter_delimeter_indeces(contents):
     return first, second
 
 
-def has_front_matter_key(contents, key):
+def has_front_matter_key(contents, key, return_index=False):
     if not has_front_matter(contents):
         return False
     key = f"{key}:"
@@ -37,7 +37,7 @@ def has_front_matter_key(contents, key):
     first, second = get_front_matter_delimeter_indeces(read_lines)
     for index in range(len(read_lines)):
         if key in read_lines[index] and index in range(first, second):
-            return True
+            return index if return_index else True
     return False
 
 
@@ -85,40 +85,58 @@ def clean_front_matter_values(values):
     return cleaned_values
 
 
-def delete_front_matter(file_path, key):
+def delete_front_matter(file_path, key, write=True):
     read_lines = get_read_lines(file_path)
     start, end = get_front_matter_indeces(read_lines, key)
     if start is None or end is None:
         return False
     del read_lines[start : end + 1]
+    return (
+        read_lines
+        if not write
+        else common.write_file_lines(file_path, read_lines)
+    )
+
+
+def add_front_matter(file_path, key, value):
+    read_lines = get_read_lines(file_path)
+    start, end = get_front_matter_delimeter_indeces(read_lines)
+    if start is None or end is None:
+        return False
+    read_lines = handle_lines_insert_value(read_lines, end, key, value)
     return common.write_file_lines(file_path, read_lines)
 
 
-def add_front_matter(contents, key, value):
-    pass
+def insert_list_at_index(supplied_list, index, insert_list):
+    if index not in range(len(supplied_list)):
+        raise ValueError("Supplied index out of range!")
+    if not isinstance(supplied_list, list):
+        raise ValueError("Supplied list is not list type!")
+    for insert_item in insert_list:
+        supplied_list.insert(index, insert_item)
+        index += 1
+    return supplied_list
 
 
-def udpate_front_matter(contents, key, value):
-    pass
+def handle_lines_insert_value(read_lines, index, key, value):
+    if not isinstance(read_lines, list):
+        raise ValueError("Supplied list is not list type!")
+    if isinstance(value, list):
+        value = [f"  - {v}\n" for v in value]
+        insert_list = [f"{key}:\n", *value]
+        read_lines = insert_list_at_index(read_lines, index, insert_list)
+    else:
+        addition = f"{key}: {value}\n"
+        read_lines.insert(index, addition)
+    return read_lines
 
 
-def testing():
-    # myf = "/Users/jasonboyd/Tracking/Meetings/2025/August/jordanelle-sunday-sailing-dinner.md"
-    myf = "/Users/jasonboyd/Tracking/testing-front-matter.md"
-    for el in get_read_lines(myf):
-        print(repr(el))
-    print()
-    indeces = get_front_matter_indeces(myf, "tags")
-    print(indeces)
-    values = get_front_matter_value(myf, "tags")
-    print(values)
-
-
-def main():
-    myf = "/Users/jasonboyd/Tracking/testing-front-matter.md"
-    result = delete_front_matter(myf, "summary")
-    print(result)
-
-
-if __name__ == "__main__":
-    main()
+def update_front_matter(file_path, key, value):
+    read_lines = get_read_lines(file_path)
+    index = has_front_matter_key(read_lines, key, return_index=True)
+    if not index and isinstance(index, bool):
+        add_front_matter(file_path, key, value)
+        return True
+    read_lines = delete_front_matter(read_lines, key, write=False)
+    read_lines = handle_lines_insert_value(read_lines, index, key, value)
+    return common.write_file_lines(file_path, read_lines)

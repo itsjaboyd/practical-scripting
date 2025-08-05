@@ -2,7 +2,7 @@ import pathlib
 import re
 import common
 
-ROOT_DIRECTORY = "/Users/jasonboyd/Notes/"
+ROOT_DIRECTORY = "/Users/jasonboyd/Tracking/"
 
 
 def find_match_strings(pattern, contents):

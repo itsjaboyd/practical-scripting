@@ -1,6 +1,7 @@
 """common.py: Commonly used functions across Obsidian scripting"""
 
 import pathlib
+import json
 
 
 def get_path(file_path):
@@ -44,3 +45,25 @@ def gather_files(root_path):
         if fp.is_file():
             file_list.append(fp)
     return file_list
+
+
+def sanitize_person_links(person_link):
+    translation_table = str.maketrans({'"': "", "[": "", "]": ""})
+    if isinstance(person_link, list):
+        for index in range(len(person_link)):
+            person_link[index] = person_link[index].translate(translation_table)
+        return person_link
+    person_link = person_link.translate(translation_table)
+    return person_link
+
+
+def get_updated_json(file_path):
+    file_path = get_path(file_path)
+    with open(file_path, "r") as fp:
+        return json.load(fp)
+
+
+def write_updated_json(file_path, updated_json):
+    file_path = get_path(file_path)
+    with open(file_path, "w") as fp:
+        return json.dump(updated_json, fp)
