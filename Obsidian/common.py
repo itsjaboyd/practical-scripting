@@ -57,6 +57,16 @@ def sanitize_person_links(person_link):
     return person_link
 
 
+def remove_list_indeces(supplied_list, index_list):
+    if not index_list:
+        return supplied_list
+    removed_list = []
+    for index in range(len(supplied_list)):
+        if index not in index_list:
+            removed_list.append(supplied_list[index])
+    return removed_list
+
+
 def get_updated_json(file_path):
     file_path = get_path(file_path)
     with open(file_path, "r") as fp:

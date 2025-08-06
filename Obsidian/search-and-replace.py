@@ -23,13 +23,60 @@ def repair_old_meeting(contents):
         r"SORT created DESC\n"
         r"```"
     )
-    match_list = find_match_strings(query_regex, contents)
+    match_list = get_matching_groups(query_regex, contents)
     if not match_list:
         return False
     return re.sub(query_regex, replacement, contents)
 
 
-def find_match_strings(pattern, contents):
+def remove_in_content(contents, pattern, count=0, regex=True):
+    if not regex:
+        return contents.replace(pattern, "", count=count)
+    return re.sub(pattern, "", contents, count=0)
+
+
+def replace_in_content(contents, pattern, replacement, count=0, regex=True):
+    if not regex:
+        return contents.replace(pattern, replacement, count=count)
+    return re.sub(pattern, replacement, contents, count=count)
+
+
+def remove_in_lines(lines, pattern, count=0, regex=True, remove_line=True):
+    removal_indeces = []
+    for index in range(len(lines)):
+        removal = lines[index]
+        regex_remove = re.sub(pattern, "", lines[index], count=count)
+        string_remove = lines[index].replace(pattern, "", count=count)
+        removal = regex_remove if regex else string_remove
+        lines[index] = removal
+        if removal.strip() == "":
+            removal_indeces.append(index)
+    return (
+        common.remove_list_indeces(lines, removal_indeces)
+        if remove_line
+        else lines
+    )
+
+
+def replace_in_lines(
+    lines, pattern, replacement, count=0, regex=True, remove_line=True
+):
+    removal_indeces = []
+    for index in range(len(lines)):
+        regex_replace = re.sub(pattern, replacement, lines[index], count=count)
+        string_replace = lines[index].replace(pattern, replacement, count=count)
+        replaced = regex_replace if regex else string_replace
+        lines[index] = replaced
+        if removal.strip() == "":
+            removal_indeces.append(index)
+    return (
+        common.remove_list_indeces(lines, removal_indeces)
+        if remove_line
+        else lines
+    )
+
+
+def get_matching_groups(pattern, contents):
     results = re.finditer(pattern, contents)
     return [match.group() for match in results]
 
@@ -78,9 +125,19 @@ def repair_file_with_function(file_path, regex_function):
     return common.write_file_contents(file_path, contents)
 
 
+def apply_sap_function(file_path, supplied_function, function_args=[]):
+    if not callable(supplied_function):
+        raise ValueError("Supplied function is uncallable!")
+    if not isinstance(function_args, list):
+        raise ValueError("Supplied function args is unpackable!")
+    contents = common.read_file_contents(file_path)
+    contents = supplied_function(contents, *function_args)
+    return common.write_file_contents(file_path, contents)
+
+
 def main():
     sarah = BASE_PATH + "People/sarah-gregory.md"
-    result = repair_file_with_function(sarah, repair_old_meeting)
+    result = apply_sap_function(sarah, repair_old_meeting)
     print(result)
 
 
