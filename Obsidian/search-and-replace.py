@@ -39,9 +39,10 @@ def repair_files_timed_iso_dates(root_path):
 
 
 def main():
-    results = repair_files_timed_iso_dates(ROOT_DIRECTORY)
-    for result in results:
-        print(result)
+    pattern = r''
+    sarah = ROOT_DIRECTORY + "People/sarah-gregory.md"
+    contents = common.read_file_contents(sarah)
+    print(contents)
 
 
 if __name__ == "__main__":
