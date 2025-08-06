@@ -48,13 +48,26 @@ def gather_files(root_path):
 
 
 def sanitize_person_links(person_link):
-    translation_table = str.maketrans({'"': "", "[": "", "]": ""})
+    translation = str.maketrans({'"': "", "[": "", "]": ""})
     if isinstance(person_link, list):
         for index in range(len(person_link)):
-            person_link[index] = person_link[index].translate(translation_table)
+            person_link[index] = person_link[index].translate(translation)
         return person_link
-    person_link = person_link.translate(translation_table)
+    person_link = person_link.translate(translation)
     return person_link
+
+
+def file_add_lines(file_path, lines_list, index=-1):
+    read_lines = common.read_file_contents(file_path)
+    if index == -1:
+        read_lines.extend(lines_list)
+    else:
+        read_lines[index:index] = lines_list
+    return common.write_file_lines(file_path, read_lines)
+
+
+def file_add_content(file_path, addition, location=-1):
+    pass
 
 
 def remove_list_indeces(supplied_list, index_list):

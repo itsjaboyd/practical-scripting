@@ -1,32 +1,6 @@
 import pathlib
 import re
 import common
-import platform
-
-
-if platform.system() == "Darwin":
-    BASE_PATH = "/Users/jasonboyd/Tracking/"
-else:  # use WSL's path to user notes on windows WSL
-    BASE_PATH = "/mnt/c/Users/basonjoyd/Tracking/"
-
-
-def repair_old_meeting(contents):
-    query_regex = (
-        r"`{3}dataview\nTABLE summary, created\nFROM \"Meetings\"\nWHERE "
-        r"any\(map\(attendees, \(a\) \=> a \= this.title\)\)\n`{3}"
-    )
-    replacement = (
-        r"```dataview\n"
-        r'TABLE summary as "Summary", transpired as "Transpired"\n'
-        r'FROM "Meetings"\n'
-        r"WHERE any(map(attendees, (a) => a = this.link))\n"
-        r"SORT created DESC\n"
-        r"```"
-    )
-    match_list = get_matching_groups(query_regex, contents)
-    if not match_list:
-        return False
-    return re.sub(query_regex, replacement, contents)
 
 
 def remove_in_content(contents, pattern, count=0, regex=True):
