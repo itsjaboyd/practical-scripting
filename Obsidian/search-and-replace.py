@@ -3,6 +3,29 @@ import re
 import common
 
 
+def is_in_contents(contents, pattern, regex=True):
+    if not regex:
+        return pattern in contents
+    return re.search(pattern, contents) is not None
+
+
+def is_in_lines(lines, pattern, regex=True):
+    for line in lines:
+        if not regex and pattern in line:
+            return True
+        if regex and is_in_content(line, pattern):
+            return True
+    return False
+
+
+def is_in_file(file_path, searchable, lines=False, regex=True):
+    if not lines:
+        contents = common.read_file_contents(file_path)
+        return is_in_contents(contents, searchable, regex=regex)
+    read_lines = common.read_file_lines(file_path)
+    return is_in_lines(read_lines, searchable, regex=regex)
+
+
 def remove_in_content(contents, pattern, count=0, regex=True):
     if not regex:
         return contents.replace(pattern, "", count=count)

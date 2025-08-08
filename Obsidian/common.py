@@ -58,16 +58,25 @@ def sanitize_person_links(person_link):
 
 
 def file_add_lines(file_path, lines_list, index=-1):
-    read_lines = common.read_file_contents(file_path)
+    read_lines = read_file_lines(file_path)
     if index == -1:
         read_lines.extend(lines_list)
     else:
+        if index not in range(len(read_lines)):
+            return False
         read_lines[index:index] = lines_list
-    return common.write_file_lines(file_path, read_lines)
+    return write_file_lines(file_path, read_lines)
 
 
-def file_add_content(file_path, addition, location=-1):
-    pass
+def file_add_content(file_path, addition, index=-1):
+    contents = read_file_contents(file_path)
+    if index == -1:
+        contents += addition
+    else:
+        if index not in range(len(contents)):
+            return False
+        contents = contents[:index] + addition + contents[index:]
+    return write_file_contents(file_path)
 
 
 def remove_list_indeces(supplied_list, index_list):
