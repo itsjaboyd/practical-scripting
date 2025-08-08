@@ -57,26 +57,36 @@ def sanitize_person_links(person_link):
     return person_link
 
 
+def add_lines(supplied_lines, lines_list, index=-1):
+    if index == -1:
+        supplied_lines.extend(lines_list)
+    else:
+        if index not in range(len(supplied_lines)):
+            raise ValueError("Supplied index not within lines!")
+        supplied_lines[index:index] = lines_list
+    return supplied_lines
+
+
+def add_content(supplied_content, addition, index=-1):
+    if index == -1:
+        supplied_content += addition
+    else:
+        if index not in range(len(contents)):
+            raise ValueError("Supplied index not within content!")
+        supplied_content = contents[:index] + addition + contents[index:]
+    return supplied_content
+
+
 def file_add_lines(file_path, lines_list, index=-1):
     read_lines = read_file_lines(file_path)
-    if index == -1:
-        read_lines.extend(lines_list)
-    else:
-        if index not in range(len(read_lines)):
-            return False
-        read_lines[index:index] = lines_list
-    return write_file_lines(file_path, read_lines)
+    read_lines = add_lines(read_lines, lines_list, index=index)
+    return file_write_lines(file_path, read_lines)
 
 
 def file_add_content(file_path, addition, index=-1):
     contents = read_file_contents(file_path)
-    if index == -1:
-        contents += addition
-    else:
-        if index not in range(len(contents)):
-            return False
-        contents = contents[:index] + addition + contents[index:]
-    return write_file_contents(file_path)
+    contents = add_content(contents, addition, index=index)
+    return write_file_contents(file_path, contents)
 
 
 def remove_list_indeces(supplied_list, index_list):
