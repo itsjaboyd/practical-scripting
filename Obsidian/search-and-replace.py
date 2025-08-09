@@ -51,7 +51,7 @@ def replace_in_content(contents, pattern, replacement, count=0, regex=True):
     return re.sub(pattern, replacement, contents, count=count)
 
 
-def remove_in_lines(lines, pattern, count=0, regex=True, remove_line=True):
+def remove_in_lines(lines, pattern, count=0, regex=True, remove=True):
     removal_indeces = []
     for index in range(len(lines)):
         removal = lines[index]
@@ -61,16 +61,10 @@ def remove_in_lines(lines, pattern, count=0, regex=True, remove_line=True):
         lines[index] = removal
         if removal.strip() == "":
             removal_indeces.append(index)
-    return (
-        common.remove_list_indeces(lines, removal_indeces)
-        if remove_line
-        else lines
-    )
+    return common.remove_list_indeces(lines, removal_indeces) if remove else lines
 
 
-def replace_in_lines(
-    lines, pattern, replacement, count=0, regex=True, remove_line=True
-):
+def replace_in_lines(lines, pattern, replacement, count=0, regex=True, remove=True):
     removal_indeces = []
     for index in range(len(lines)):
         regex_replace = re.sub(pattern, replacement, lines[index], count=count)
@@ -79,11 +73,7 @@ def replace_in_lines(
         lines[index] = replaced
         if removal.strip() == "":
             removal_indeces.append(index)
-    return (
-        common.remove_list_indeces(lines, removal_indeces)
-        if remove_line
-        else lines
-    )
+    return common.remove_list_indeces(lines, removal_indeces) if remove else lines
 
 
 def get_matching_groups(pattern, contents):
@@ -104,11 +94,31 @@ def truncate_timed_iso_dates(file_path):
     return common.write_file_contents(file_path, contents)
 
 
-def main():
-    sarah = BASE_PATH + "People/sarah-gregory.md"
-    result = apply_sap_function(sarah, repair_old_meeting)
-    print(result)
+def replace_in_file(file_path, pattern, replacement, count=0, regex=True):
+    # replace the pattern with replacement in a file.
+    pass
 
 
-if __name__ == "__main__":
-    main()
+def replace_in_files(root_path, pattern, replacement, count=0, regex=True):
+    # replace the pattern with replacement across multiple files.
+    pass
+
+
+def remove_in_file(file_path, pattern, count=0, regex=True):
+    # remove the pattern with an empty string in a file.
+    pass
+
+
+def remove_in_files(root_path, pattern, count=0, regex=True):
+    # remove the pattern with an emptry string across multiple files.
+    pass
+
+
+def search_in_file(file_path, pattern, count=0, regex=True):
+    # return matches based on the pattern in the file.
+    pass
+
+
+def search_in_files(root_path, pattern, count=0, regex=True):
+    # return matches across files based on the pattern.
+    pass

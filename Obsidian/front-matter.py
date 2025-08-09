@@ -91,11 +91,7 @@ def delete_front_matter(file_path, key, write=True):
     if start is None or end is None:
         return False
     del read_lines[start : end + 1]
-    return (
-        read_lines
-        if not write
-        else common.write_file_lines(file_path, read_lines)
-    )
+    return read_lines if not write else common.write_file_lines(file_path, read_lines)
 
 
 def add_front_matter(file_path, key, value):
@@ -140,3 +136,58 @@ def update_front_matter(file_path, key, value):
     read_lines = delete_front_matter(read_lines, key, write=False)
     read_lines = handle_lines_insert_value(read_lines, index, key, value)
     return common.write_file_lines(file_path, read_lines)
+
+
+def alphatbetize_front_matter(file_path):
+    # take the front matter list and alphabetize it.
+    pass
+
+
+def group_front_matter(file_path, alphabetize=True):
+    # take the front matter, group it by type, and optionally alphabetize it.
+    pass
+
+
+def redact_front_matter(file_path):
+    # replace front matter values with some redacted nullified field.
+    pass
+
+
+def remove_front_matter(file_path):
+    # remove the front matter portion entirely.
+    pass
+
+
+def replace_front_matter(file_path, keys, values):
+    # replace front matter key(s) with new value(s).
+    pass
+
+
+def print_front_matter(file_path):
+    # print what is currently in front matter to the console.
+    pass
+
+
+def get_front_matter_json(file_path, dictionary=True):
+    # get the front matter and return it as a json/dict object.
+    pass
+
+
+def get_front_matter_keys(file_path):
+    # return the front matter keys as a list.
+    pass
+
+
+def get_front_matter_values(file_path):
+    # return the front matter values as a list.
+    pass
+
+
+def guess_front_matter_type(file_path, key):
+    # guess the front matter key type based on its value.
+    pass
+
+
+def file_has_frontmatter(file_path):
+    # return boolean based on if front matter exists or not.
+    pass

@@ -14,7 +14,7 @@ else:  # use WSL's path to user notes on windows WSL
 
 MEETINGS_DIRECTORY = BASE_PATH + "Meetings/"
 PEOPLE_DIRECTORY = BASE_PATH + "People/"
-UPDATED_JSON = BASE_PATH + "Extras/Other/updated.json"
+UPDATED_JSON = BASE_PATH + "Extras/Other/meetings.json"
 
 
 def update_contacted_automatic():
@@ -35,10 +35,10 @@ def update_contacted_automatic():
 
 def generate_updated_meetings_json():
     root_path = common.get_path(MEETINGS_DIRECTORY)
-    updated_json = common.get_updated_json(UPDATED_JSON)
+    base_json = {"meetings": []}
     meetings = get_oldest_sorted_meetings(MEETINGS_DIRECTORY)
     meetings = [str(m).replace(MEETINGS_DIRECTORY, "") for m in meetings]
-    updated_json["meetings"] = meetings
+    base_json["meetings"] = meetings
     return common.write_updated_json(UPDATED_JSON, updated_json)
 
 
