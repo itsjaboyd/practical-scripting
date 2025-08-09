@@ -26,6 +26,15 @@ def is_in_file(file_path, searchable, lines=False, regex=True):
     return is_in_lines(read_lines, searchable, regex=regex)
 
 
+def is_in_files(root_path, searchable, lines=False, regex=True):
+    file_list = common.gather_files(root_path)
+    results = []
+    for file_path in file_list:
+        found = is_in_file(file_path, searchable, lines=lines, regex=regex)
+        results.append((file_path, found))
+    return results
+
+
 def remove_in_content(contents, pattern, count=0, regex=True):
     if not regex:
         if count > 0:
@@ -36,7 +45,9 @@ def remove_in_content(contents, pattern, count=0, regex=True):
 
 def replace_in_content(contents, pattern, replacement, count=0, regex=True):
     if not regex:
-        return contents.replace(pattern, replacement, count=count)
+        if count > 0:
+            return contents.replace(pattern, replacement, count=count)
+        return contents.replace(pattern, replacement)
     return re.sub(pattern, replacement, contents, count=count)
 
 
@@ -80,57 +91,16 @@ def get_matching_groups(pattern, contents):
     return [match.group() for match in results]
 
 
-def repair_timed_iso_dates(contents):
+def truncate_timed_iso_dates(file_path):
     re_iso_time = r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}"
-    match_list = find_match_strings(re_iso_time, contents)
-    if not match_list:
-        return contents
-    for match in match_list:
-        corrected_iso = match.split(" ")[0]
-        contents = contents.replace(match, corrected_iso, 1)
-    return contents
-
-
-def repair_file_timed_iso_dates(file_path):
     contents = common.read_file_contents(file_path)
-    contents = repair_timed_iso_dates(contents)
-    return common.write_file_contents(file_path, contents)
 
+    def handle_timed(match):
+        timed_iso = match.group()
+        corrected_iso = timed_iso.split(" ")[0]
+        return corrected_iso
 
-def repair_files_timed_iso_dates(root_path):
-    file_list = common.gather_files(root_path)
-    results = []
-    for file_path in file_list:
-        result = repair_file_timed_iso_dates(file_path)
-        status = "success" if result else "failure"
-        message = f"Updating timed iso dates resulted {status} for {file_path}."
-        results.append(message)
-    return results
-
-
-def repair_files_with_function(root_path, regex_function):
-    file_list = common.gather_files(root_path)
-    results = [
-        repair_file_with_function(fp, regex_function) for fp in file_list
-    ]
-    return results
-
-
-def repair_file_with_function(file_path, regex_function):
-    if not callable(regex_function):
-        raise ValueError("Supplied function is uncallable!")
-    contents = common.read_file_contents(file_path)
-    contents = regex_function(contents)
-    return common.write_file_contents(file_path, contents)
-
-
-def apply_sap_function(file_path, supplied_function, function_args=[]):
-    if not callable(supplied_function):
-        raise ValueError("Supplied function is uncallable!")
-    if not isinstance(function_args, list):
-        raise ValueError("Supplied function args is unpackable!")
-    contents = common.read_file_contents(file_path)
-    contents = supplied_function(contents, *function_args)
+    contents = replace_in_content(contents, re_iso_time, handle_timed)
     return common.write_file_contents(file_path, contents)
 
 

@@ -2,13 +2,19 @@ import pathlib
 import common
 import datetime
 import json
+import platform
 import importlib
 
 fm = importlib.import_module("front-matter")
 
-MEETINGS_DIRECTORY = "/Users/jasonboyd/Tracking/Meetings/"
-PEOPLE_DIRECTORY = "/Users/jasonboyd/Tracking/People/"
-UPDATED_JSON = "/Users/jasonboyd/Tracking/Extras/Other/updated.json"
+if platform.system() == "Darwin":
+    BASE_PATH = "/Users/jasonboyd/Tracking/"
+else:  # use WSL's path to user notes on windows WSL
+    BASE_PATH = "/mnt/c/Users/basonjoyd/Tracking/"
+
+MEETINGS_DIRECTORY = BASE_PATH + "Meetings/"
+PEOPLE_DIRECTORY = BASE_PATH + "People/"
+UPDATED_JSON = BASE_PATH + "Extras/Other/updated.json"
 
 
 def update_contacted_automatic():
@@ -17,11 +23,13 @@ def update_contacted_automatic():
     current_meetings = get_oldest_sorted_meetings(MEETINGS_DIRECTORY)
     update_meetings_list, total_results = [], []
     for meeting in current_meetings:
-        if str(meeting) not in saved_meetings:
+        truncated_meeting = str(meeting).replace(MEETINGS_DIRECTORY, "")
+        if truncated_meeting not in saved_meetings:
             update_meetings_list.append(meeting)
     for meeting in update_meetings_list:
         results = update_contacted_from_meeting(meeting)
         total_results.append((meeting, results))
+    update_meetings = generate_updated_meetings_json()
     return total_results
 
 
@@ -29,7 +37,7 @@ def generate_updated_meetings_json():
     root_path = common.get_path(MEETINGS_DIRECTORY)
     updated_json = common.get_updated_json(UPDATED_JSON)
     meetings = get_oldest_sorted_meetings(MEETINGS_DIRECTORY)
-    meetings = [str(m) for m in meetings]
+    meetings = [str(m).replace(MEETINGS_DIRECTORY, "") for m in meetings]
     updated_json["meetings"] = meetings
     return common.write_updated_json(UPDATED_JSON, updated_json)
 
