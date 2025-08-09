@@ -5,7 +5,16 @@ fm = importlib.import_module("front-matter")
 
 
 def main():
-    pass
+    multiline = """
+## Meetings
+```dataview
+TABLE
+FROM "People"
+WHERE this.fm is in that.fm
+SORT file.ctime DESC
+
+"""
+    print(repr(multiline))
 
 
 if __name__ == "__main__":

@@ -28,8 +28,10 @@ def is_in_file(file_path, searchable, lines=False, regex=True):
 
 def remove_in_content(contents, pattern, count=0, regex=True):
     if not regex:
-        return contents.replace(pattern, "", count=count)
-    return re.sub(pattern, "", contents, count=0)
+        if count > 0:
+            return contents.replace(pattern, "", count=count)
+        return contents.replace(pattern, "")
+    return re.sub(pattern, "", contents, count=count)
 
 
 def replace_in_content(contents, pattern, replacement, count=0, regex=True):
