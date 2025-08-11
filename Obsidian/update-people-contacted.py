@@ -53,7 +53,7 @@ def update_contacted_overall():
 
 def get_oldest_sorted_meetings(root_path):
     meetings = common.gather_files(root_path)
-    meetings.sort(key=lambda mt: properties.get_front_matter_value(mt, "transpired"))
+    meetings.sort(key=lambda mt: properties.get_property_value(mt, "transpired"))
     return meetings
 
 
@@ -62,15 +62,15 @@ def update_contacted_from_meeting(meeting_file):
     if not meeting_file.exists():
         return False
     results = []
-    transpired = properties.get_front_matter_value(meeting_file, "transpired")
+    transpired = properties.get_property_value(meeting_file, "transpired")
     for associate in get_people_associated(meeting_file):
-        result = properties.update_front_matter(associate, "contacted", transpired)
+        result = properties.update_property(associate, "contacted", transpired)
         results.append((associate.name, result))
     return results
 
 
 def get_people_associated(meeting_file):
-    attendee_links = properties.get_front_matter_value(meeting_file, "attendees")
+    attendee_links = properties.get_property_value(meeting_file, "attendees")
     if attendee_links is None:
         return []
     attendees = common.sanitize_person_links(attendee_links)
