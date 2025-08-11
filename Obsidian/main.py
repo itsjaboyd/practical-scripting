@@ -2,7 +2,7 @@ import importlib
 import platform
 
 common = importlib.import_module("common")
-fm = importlib.import_module("front-matter")
+properties = importlib.import_module("properties")
 sap = importlib.import_module("search-and-replace")
 mn = importlib.import_module("modify-notes")
 upc = importlib.import_module("update-people-contacted")

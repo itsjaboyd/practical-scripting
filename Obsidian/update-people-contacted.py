@@ -5,7 +5,7 @@ import json
 import platform
 import importlib
 
-fm = importlib.import_module("front-matter")
+properties = importlib.import_module("properties")
 
 if platform.system() == "Darwin":
     BASE_PATH = "/Users/jasonboyd/Tracking/"
@@ -53,7 +53,7 @@ def update_contacted_overall():
 
 def get_oldest_sorted_meetings(root_path):
     meetings = common.gather_files(root_path)
-    meetings.sort(key=lambda mt: fm.get_front_matter_value(mt, "transpired"))
+    meetings.sort(key=lambda mt: properties.get_front_matter_value(mt, "transpired"))
     return meetings
 
 
@@ -62,15 +62,15 @@ def update_contacted_from_meeting(meeting_file):
     if not meeting_file.exists():
         return False
     results = []
-    transpired = fm.get_front_matter_value(meeting_file, "transpired")
+    transpired = properties.get_front_matter_value(meeting_file, "transpired")
     for associate in get_people_associated(meeting_file):
-        result = fm.update_front_matter(associate, "contacted", transpired)
+        result = properties.update_front_matter(associate, "contacted", transpired)
         results.append((associate.name, result))
     return results
 
 
 def get_people_associated(meeting_file):
-    attendee_links = fm.get_front_matter_value(meeting_file, "attendees")
+    attendee_links = properties.get_front_matter_value(meeting_file, "attendees")
     if attendee_links is None:
         return []
     attendees = common.sanitize_person_links(attendee_links)
