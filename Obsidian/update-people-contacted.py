@@ -39,7 +39,7 @@ def generate_updated_meetings_json():
     meetings = get_oldest_sorted_meetings(MEETINGS_DIRECTORY)
     meetings = [str(m).replace(MEETINGS_DIRECTORY, "") for m in meetings]
     base_json["meetings"] = meetings
-    return common.write_updated_json(UPDATED_JSON, updated_json)
+    return common.write_updated_json(UPDATED_JSON, base_json)
 
 
 def update_contacted_overall():

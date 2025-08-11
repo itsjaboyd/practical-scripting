@@ -4,23 +4,28 @@ import pathlib
 PROPERTY_DELIMETER = "---\n"
 
 
+# TODO:
+# 1. Have get_property_value return indeces so other function can use these.
+# 2. instead of handing read_lines everywhere, write a function to get property lines.
+# 3. Write some of the more useful functions since those will be used in others.
+
+
+# THIS IS BAD FUNCTION, READ_FILE_LINES NEEDS FILE PATH!
 def get_read_lines(contents):
     if isinstance(contents, list):
         return contents
     return common.read_file_lines(contents)
 
 
-def has_property(contents):
-    read_lines = get_read_lines(contents)
+def has_property(read_lines):
     if read_lines.count(PROPERTY_DELIMETER) == 2:
         return True
     return False
 
 
-def get_property_delimeter_indeces(contents):
-    if not has_property(contents):
+def get_property_delimeter_indeces(read_lines):
+    if not has_property(read_lines):
         return None, None
-    read_lines = get_read_lines(contents)
     first, second = None, None
     for index in range(len(read_lines)):
         if read_lines[index] == PROPERTY_DELIMETER:
@@ -29,11 +34,10 @@ def get_property_delimeter_indeces(contents):
     return first, second
 
 
-def has_property_key(contents, key, return_index=False):
-    if not has_property(contents):
+def has_property_key(read_lines, key, return_index=False):
+    if not has_property(read_lines):
         return False
     key = f"{key}:"
-    read_lines = get_read_lines(contents)
     first, second = get_property_delimeter_indeces(read_lines)
     for index in range(len(read_lines)):
         if key in read_lines[index] and index in range(first, second):
@@ -41,14 +45,13 @@ def has_property_key(contents, key, return_index=False):
     return False
 
 
-def get_property_indeces(contents, key):
-    if not has_property_key(contents, key):
+def get_property_indeces(read_lines, key):
+    if not has_property_key(read_lines, key):
         return None, None
     key = f"{key}:"
-    fm_start, fm_end = get_property_delimeter_indeces(contents)
-    read_lines = get_read_lines(contents)
+    property_start, property_end = get_property_delimeter_indeces(read_lines)
     start, end = None, None
-    for index in range(fm_start, fm_end):
+    for index in range(property_start, property_end):
         current_line = read_lines[index]
         if start is not None:
             line_parts = current_line.split(" ")
@@ -60,11 +63,10 @@ def get_property_indeces(contents, key):
     return start, end
 
 
-def get_property_value(contents, key):
-    if not has_property_key(contents, key):
+def get_property_value(read_lines, key):
+    if not has_property_key(read_lines, key):
         return
     values = []
-    read_lines = get_read_lines(contents)
     start, end = get_property_indeces(read_lines, key)
     for index in range(start, end + 1):
         line_parts = read_lines[index].split(" ")
@@ -128,7 +130,7 @@ def handle_lines_insert_value(read_lines, index, key, value):
 
 
 def update_property(file_path, key, value):
-    read_lines = get_read_lines(file_path)
+    read_lines = common.read_file_lines(file_path)
     index = has_property_key(read_lines, key, return_index=True)
     if not index and isinstance(index, bool):
         add_property(file_path, key, value)
@@ -136,6 +138,13 @@ def update_property(file_path, key, value):
     read_lines = delete_property(read_lines, key, write=False)
     read_lines = handle_lines_insert_value(read_lines, index, key, value)
     return common.write_file_lines(file_path, read_lines)
+
+
+def extract_property_key_line(read_line):
+    separated = read_line.split(":", maxsplit=1)
+    if len(separated) < 2:
+        return None
+    return separated[0].strip()
 
 
 def alphatbetize_property(file_path):
@@ -170,7 +179,16 @@ def print_property(file_path):
 
 def get_property_json(file_path, dictionary=True):
     # get the property and return it as a json/dict object.
-    pass
+    read_lines = common.read_file_lines(file_path)
+    start, end = get_property_delimeter_indeces(read_lines)
+    property_lookup = {}
+    for index in range(start + 1, end):
+        key = extract_property_key_line(read_lines[index])
+        if not key:
+            continue
+        value = get_property_value(read_lines, key)
+        property_lookup[key] = value
+    return property_lookup
 
 
 def get_property_keys(file_path):
