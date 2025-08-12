@@ -48,10 +48,12 @@ def gather_files(root_path):
 
 
 def sanitize_person_links(person_link):
-    translation = str.maketrans({'"': "", "[": "", "]": ""})
+    translation = str.maketrans({'"': "", "[": "", "]": "", ".": "", "/": ""})
     if isinstance(person_link, list):
         for index in range(len(person_link)):
-            person_link[index] = person_link[index].translate(translation)
+            initial_strip = person_link[index].translate(translation)
+            gathered_name = initial_strip.split("|")[-1]
+            person_link[index] = gathered_name
         return person_link
     person_link = person_link.translate(translation)
     return person_link

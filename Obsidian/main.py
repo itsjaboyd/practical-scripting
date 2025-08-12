@@ -13,10 +13,10 @@ else:  # use WSL's path to user notes on windows WSL
     BASE_PATH = "/mnt/c/Users/basonjoyd/Tracking/"
 
 def main():
-    sarah = BASE_PATH + "People/sarah-gregory.md"
-    result = properties.get_property_json(sarah)
-    for key in result:
-        print(key, result[key])
+    results = upc.update_contacted_automatic()
+    for result in results:
+        print(result)
+
 
 
 if __name__ == "__main__":

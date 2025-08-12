@@ -1,13 +1,14 @@
 import common
 import pathlib
+import pyyaml
 
 PROPERTY_DELIMETER = "---\n"
 
 
 # TODO:
-# 1. Have get_property_value return indeces so other function can use these.
-# 2. instead of handing read_lines everywhere, write a function to get property lines.
-# 3. Write some of the more useful functions since those will be used in others.
+# 2. Have get_property_value return indeces so other function can use these.
+# 3. instead of handing read_lines everywhere, write a function to get property lines.
+# 4. Write some of the more useful functions since those will be used in others.
 
 
 # THIS IS BAD FUNCTION, READ_FILE_LINES NEEDS FILE PATH!
@@ -18,9 +19,10 @@ def get_read_lines(contents):
 
 
 def has_property(read_lines):
-    if read_lines.count(PROPERTY_DELIMETER) == 2:
-        return True
-    return False
+    count = 0
+    for line in read_lines:
+        count = count + 1 if line == PROPERTY_DELIMETER else count
+    return True if count == 2 else False
 
 
 def get_property_delimeter_indeces(read_lines):
@@ -88,7 +90,7 @@ def clean_property_values(values):
 
 
 def delete_property(file_path, key, write=True):
-    read_lines = get_read_lines(file_path)
+    read_lines = common.read_file_lines(file_path)
     start, end = get_property_indeces(read_lines, key)
     if start is None or end is None:
         return False
@@ -97,7 +99,7 @@ def delete_property(file_path, key, write=True):
 
 
 def add_property(file_path, key, value):
-    read_lines = get_read_lines(file_path)
+    read_lines = common.read_file_lines(file_path)
     start, end = get_property_delimeter_indeces(read_lines)
     if start is None or end is None:
         return False
@@ -209,3 +211,15 @@ def guess_property_type(file_path, key):
 def file_has_frontmatter(file_path):
     # return boolean based on if property exists or not.
     pass
+
+
+class Properties:
+
+    PROPERTY_DELIMETER = "---\n"
+
+    def __init__(file_path):
+        self.properties = {}
+        pass
+
+    def __str__():
+        pass

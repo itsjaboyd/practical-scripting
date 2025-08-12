@@ -26,6 +26,13 @@ def update_contacted_automatic():
         truncated_meeting = str(meeting).replace(MEETINGS_DIRECTORY, "")
         if truncated_meeting not in saved_meetings:
             update_meetings_list.append(meeting)
+
+
+    print("-----UPDATE MEETINGS LIST-----")
+    for el in update_meetings_list:
+        print(el)
+
+
     for meeting in update_meetings_list:
         results = update_contacted_from_meeting(meeting)
         total_results.append((meeting, results))
@@ -53,7 +60,11 @@ def update_contacted_overall():
 
 def get_oldest_sorted_meetings(root_path):
     meetings = common.gather_files(root_path)
-    meetings.sort(key=lambda mt: properties.get_property_value(mt, "transpired"))
+    meetings.sort(
+        key=lambda mt: properties.get_property_value(
+            common.read_file_lines(mt), "transpired"
+        )
+    )
     return meetings
 
 
@@ -62,7 +73,8 @@ def update_contacted_from_meeting(meeting_file):
     if not meeting_file.exists():
         return False
     results = []
-    transpired = properties.get_property_value(meeting_file, "transpired")
+    read_lines = common.read_file_lines(meeting_file)
+    transpired = properties.get_property_value(read_lines, "transpired")
     for associate in get_people_associated(meeting_file):
         result = properties.update_property(associate, "contacted", transpired)
         results.append((associate.name, result))
@@ -70,10 +82,12 @@ def update_contacted_from_meeting(meeting_file):
 
 
 def get_people_associated(meeting_file):
-    attendee_links = properties.get_property_value(meeting_file, "attendees")
+    read_lines = common.read_file_lines(meeting_file)
+    attendee_links = properties.get_property_value(read_lines, "attendees")
     if attendee_links is None:
         return []
     attendees = common.sanitize_person_links(attendee_links)
+    print("ATTENDEES: ", attendees)
     return get_people_notes(attendees)
 
 
