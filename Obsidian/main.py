@@ -15,22 +15,21 @@ else:  # use WSL's path to user notes on windows WSL
 
 LEARNING_TABLE = r'## Learning\n\n.*\n\n```dataview\nTABLE title as "Title", summary as "Summary"\nFROM "Subjects" OR "Courses"\nWHERE contains\(flat\(list\(updated\)\), date\(".{0,20}"\)\)\n```'
 
-WORKOUT_TABLE = r'```dataview\nTABLE type as "Workout Type", mood as "Overall Mood", effort as "Overall Effort" \nFROM "Fitness"\nWHERE date\(split\(transpired, " "\)\[0\]\) = date\(".{0,20}"\)\n```'
+WORKOUT_TABLE = r'```dataview\nTABLE type as "Workout Type", mood as "Overall Mood", effort as "Overall Effort"\nFROM "Fitness"\nWHERE date\(split\(transpired, " "\)\[0\]\) = date\(".{0,20}"\)\n```'
 
-REPLACEMENT = r'```dataview\nTABLE title as "Title", type as "Type"\nFROM #health OR #fitness AND !"Extras"\nWHERE date(transpired) = date("{values[created]}")\nOR date(created) = date("{values[created]}")\n```'
+REPLACEMENT = r'```dataview\nTABLE title as "Title", type as "Type"\nFROM #health OR #fitness AND !"Extras"\nWHERE date(transpired) = date("{props[created]}")\nOR date(created) = date("{props[created]}")\n```'
 
 
-def main():
-    target_daily = BASE_PATH + "Periodicals/Dailys/2025/July/2025-07-29.md"
+def replace_table():
+    target_daily = BASE_PATH + "Testing/2025-07-08.md"
     print(sap.is_in_file(target_daily, WORKOUT_TABLE))
-    result = sap.replace_in_file(
-        target_daily,
-        WORKOUT_TABLE,
-        REPLACEMENT,
-        format_function=sap.format_on_property_values,
-    )
+    result = sap.replace_in_file(target_daily, WORKOUT_TABLE, REPLACEMENT, format_function=sap.format_on_property_values)
     print(result)
 
+def main():
+    target_daily = BASE_PATH + "Testing/2025-07-08.md"
+    result = common.file_remove_consecutive_duplicates(target_daily, removal="b\n")
+    print(result)
 
 if __name__ == "__main__":
     main()

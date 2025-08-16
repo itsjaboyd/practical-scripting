@@ -132,12 +132,38 @@ def replace_in_files(
 
 def remove_in_file(file_path, pattern, count=0, regex=True):
     # remove the pattern with an empty string in a file.
-    pass
+    contents = common.read_file_contents(file_path)
+    contents = remove_in_content(contents, pattern, count=count, regex=regex)
+    return common.write_file_contents(file_path, contents)
+
+
+def remove_in_file_lines(file_path, pattern, count=0, regex=True, remove=True):
+    read_lines = common.file_read_lines(file_path)
+    read_lines = remove_in_lines(
+        lines, pattern, count=count, regex=regex, remove=remove
+    )
+    return common.write_file_lines(file_path, read_lines)
 
 
 def remove_in_files(root_path, pattern, count=0, regex=True):
     # remove the pattern with an emptry string across multiple files.
-    pass
+    file_list = common.gather_files(root_path)
+    results = []
+    for file_path in file_list:
+        result = remove_in_file(file_path, pattern, count=count, regex=regex)
+        results.append((file_path, result))
+    return results
+
+
+def remove_in_files_lines(root_path, pattern, count=0, regex=True, remove=True):
+    file_list = common.gather_files(root_path)
+    results = []
+    for file_path in file_list:
+        result = remove_in_file_lines(
+            file_path, pattern, count=count, regex=regex, remove=remove
+        )
+        results.append((file_path, result))
+    return results
 
 
 def search_in_file(file_path, pattern, count=0, regex=True):
@@ -156,6 +182,6 @@ def search_in_files(root_path, pattern, count=0, regex=True):
 def format_on_property_values(file_path, initial_string):
     # note that initial string must have formats named as {values[key]} where
     # key is the property value's key to replace with.
-    values = properties.get_property_json(file_path)
-    result = initial_string.format(values=values)
+    props = properties.get_property_json(file_path)
+    result = initial_string.format(props=props)
     return result
