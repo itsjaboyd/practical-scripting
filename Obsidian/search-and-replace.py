@@ -1,6 +1,9 @@
 import pathlib
 import re
 import common
+import importlib
+
+properties = importlib.import_module("properties")
 
 
 def is_in_contents(contents, pattern, regex=True):
@@ -94,26 +97,37 @@ def truncate_timed_iso_dates(file_path):
     return common.write_file_contents(file_path, contents)
 
 
-def build_format_from_file(file_path, format_function, initial_string):
-    # format the initial_string with the replacements returned by calling
-    # format function with file path.
-    replace_formats = format_function(file_path)
-    return initial_string.format(*replace_formats)
-
-
-def replace_formatted_in_file(file_path, pattern, replacement, formats):
-
-    # give a file path object, 
-
-
-def replace_in_file(file_path, pattern, replacement, count=0, regex=True):
+def replace_in_file(
+    file_path, pattern, replacement, count=0, regex=True, format_function=None
+):
     # replace the pattern with replacement in a file.
-    pass
+    if callable(format_function) and format_function is not None:
+        replacement = format_function(file_path, replacement)
+
+    contents = common.read_file_contents(file_path)
+    contents = replace_in_content(
+        contents, pattern, replacement, count=count, regex=regex
+    )
+    return common.write_file_contents(file_path, contents)
 
 
-def replace_in_files(root_path, pattern, replacement, count=0, regex=True):
+def replace_in_files(
+    root_path, pattern, replacement, count=0, regex=True, format_function=None
+):
     # replace the pattern with replacement across multiple files.
-    pass
+    file_list = common.gather_files(root_path)
+    results = []
+    for file_path in file_list:
+        result = replace_in_file(
+            file_path,
+            pattern,
+            replacement,
+            count=count,
+            regex=regex,
+            format_function=format_function,
+        )
+        results.append((file_path, result))
+    return results
 
 
 def remove_in_file(file_path, pattern, count=0, regex=True):
@@ -134,3 +148,14 @@ def search_in_file(file_path, pattern, count=0, regex=True):
 def search_in_files(root_path, pattern, count=0, regex=True):
     # return matches across files based on the pattern.
     pass
+
+
+# Useful and common format functions
+
+
+def format_on_property_values(file_path, initial_string):
+    # note that initial string must have formats named as {values[key]} where
+    # key is the property value's key to replace with.
+    values = properties.get_property_json(file_path)
+    result = initial_string.format(values=values)
+    return result
