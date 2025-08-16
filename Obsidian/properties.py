@@ -1,6 +1,5 @@
 import common
 import pathlib
-import pyyaml
 
 PROPERTY_DELIMETER = "---\n"
 
@@ -137,7 +136,7 @@ def update_property(file_path, key, value):
     if not index and isinstance(index, bool):
         add_property(file_path, key, value)
         return True
-    read_lines = delete_property(read_lines, key, write=False)
+    read_lines = delete_property(file_path, key, write=False)
     read_lines = handle_lines_insert_value(read_lines, index, key, value)
     return common.write_file_lines(file_path, read_lines)
 

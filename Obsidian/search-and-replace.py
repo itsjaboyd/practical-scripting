@@ -94,6 +94,18 @@ def truncate_timed_iso_dates(file_path):
     return common.write_file_contents(file_path, contents)
 
 
+def build_format_from_file(file_path, format_function, initial_string):
+    # format the initial_string with the replacements returned by calling
+    # format function with file path.
+    replace_formats = format_function(file_path)
+    return initial_string.format(*replace_formats)
+
+
+def replace_formatted_in_file(file_path, pattern, replacement, formats):
+
+    # give a file path object, 
+
+
 def replace_in_file(file_path, pattern, replacement, count=0, regex=True):
     # replace the pattern with replacement in a file.
     pass
