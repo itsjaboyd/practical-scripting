@@ -5,8 +5,9 @@ import importlib
 
 properties = importlib.import_module("properties")
 
-DATAVIEW_QUERY_DELIMETER = "```dataview"
-DATAVIEW_QUERY_REGEX = r'`{3}dataview([^`{3}]|\n)*`{3}'
+DATAVIEW_DELIMETER = "```dataview"
+DATAVIEW_QUERY_REGEX = r"`{3}dataview([^`{3}]|\n)*`{3}"
+
 
 def is_in_contents(contents, pattern, regex=True):
     if not regex:
@@ -169,11 +170,11 @@ def remove_in_files_lines(root_path, pattern, count=0, regex=True, remove=True):
 
 
 def file_remove_consecutive_duplicate_lines(file_path, removal="\n", limit=1):
-    read_lines = read_file_lines(file_path)
+    read_lines = common.read_file_lines(file_path)
     read_lines = remove_consecutive_duplicate_lines(
         read_lines, removal=removal, limit=limit
     )
-    return write_file_lines(file_path, read_lines)
+    return common.write_file_lines(file_path, read_lines)
 
 
 def remove_consecutive_duplicate_lines(read_lines, removal="\n", limit=1):
@@ -182,15 +183,36 @@ def remove_consecutive_duplicate_lines(read_lines, removal="\n", limit=1):
         counter = counter + 1 if read_lines[index] == removal else 0
         if counter > limit:
             remove_indeces.append(index)
-    return remove_list_indeces(read_lines, remove_indeces)
+    return common.remove_list_indeces(read_lines, remove_indeces)
 
 
-def file_delete_emptiness_before_queries(file_path):
-    read_lines = common.read_file_lines(file_path)
+def delete_newlines_before_queries(read_lines, empty="\n"):
+    remove_indeces = []
     for index in range(len(read_lines)):
-        if DATAVIEW_DELIMETER in read_lines[index]:
-            pass
+        if DATAVIEW_DELIMETER in read_lines[index] and index != 0:
+            counter, newlines = index, True
+            while newlines:
+                counter -= 1
+                if read_lines[counter] == empty:
+                    remove_indeces.append(counter)
+                else:
+                    newlines = False
+    return common.remove_list_indeces(read_lines, remove_indeces)
 
+
+def file_delete_newlines_before_queries(file_path, empty="\n"):
+    read_lines = common.read_file_lines(file_path)
+    read_lines = delete_newlines_before_queries(read_lines, empty=empty)
+    return common.write_file_lines(file_path, read_lines)
+
+
+def files_delete_newlines_before_queries(root_path, empty="\n"):
+    file_list = common.gather_files(root_path)
+    results = []
+    for file_path in file_list:
+        result = file_delete_newlines_before_queries(file_path, empty=empty)
+        results.append((file_path, result))
+    return results
 
 
 def search_in_file(file_path, pattern, count=0, regex=True):

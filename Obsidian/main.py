@@ -28,7 +28,8 @@ def replace_table():
 
 def main():
     target_daily = BASE_PATH + "Testing/2025-07-08.md"
-    result = common.file_remove_consecutive_duplicates(target_daily, removal="b\n")
+    #result = sap.file_remove_consecutive_duplicate_lines(target_daily, removal="\n")
+    result = sap.file_delete_newlines_before_queries(target_daily)
     print(result)
 
 if __name__ == "__main__":
