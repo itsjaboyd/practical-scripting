@@ -123,23 +123,6 @@ def file_add_content(file_path, addition, index=-1):
     return write_file_contents(file_path, contents)
 
 
-def file_remove_consecutive_duplicates(file_path, removal="\n", limit=1):
-    read_lines = read_file_lines(file_path)
-    read_lines = remove_consecutive_duplicate_lines(
-        read_lines, removal=removal, limit=limit
-    )
-    return write_file_lines(file_path, read_lines)
-
-
-def remove_consecutive_duplicate_lines(read_lines, removal="\n", limit=1):
-    counter, remove_indeces = 0, []
-    for index in range(len(read_lines)):
-        counter = counter + 1 if read_lines[index] == removal else 0
-        if counter > limit:
-            remove_indeces.append(index)
-    return remove_list_indeces(read_lines, remove_indeces)
-
-
 def remove_list_indeces(supplied_list, index_list):
     if not index_list:
         return supplied_list
