@@ -183,6 +183,8 @@ def get_property_json(file_path, dictionary=True):
     read_lines = common.read_file_lines(file_path)
     start, end = get_property_delimeter_indeces(read_lines)
     property_lookup = {}
+    if start is None or end is None:
+        return property_lookup
     for index in range(start + 1, end):
         key = extract_property_key_line(read_lines[index])
         if not key:

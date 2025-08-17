@@ -232,5 +232,11 @@ def format_on_property_values(file_path, initial_string):
     # note that initial string must have formats named as {values[key]} where
     # key is the property value's key to replace with.
     props = properties.get_property_json(file_path)
-    result = initial_string.format(props=props)
-    return result
+    try:
+        result = initial_string.format(props=props)
+        return result
+    except KeyError as ke:
+        print(f"Cannot format without properties: {ke}")
+        return initial_string
+    except:
+        return initial_string
