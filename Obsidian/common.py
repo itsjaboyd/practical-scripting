@@ -117,6 +117,12 @@ def file_add_lines(file_path, lines_list, index=-1):
     return file_write_lines(file_path, read_lines)
 
 
+def file_strip_whitespace(file_path):
+    contents = read_file_contents(file_path)
+    contents = strip_contents(contents)
+    return write_file_contents(file_path, contents)
+
+
 def file_add_content(file_path, addition, index=-1):
     contents = read_file_contents(file_path)
     contents = add_content(contents, addition, index=index)
