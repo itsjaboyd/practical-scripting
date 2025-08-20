@@ -13,15 +13,15 @@ else:  # use WSL's path to user notes on windows WSL
     BASE_PATH = "/mnt/c/Users/basonjoyd/Tracking/"
 
 
-LEARNING_TABLE = r'```dataview\n\s*TABLE title as "Title", summary as "Summary"\n\s*FROM "Subjects" OR "Courses"\n\s*WHERE contains\(flat\(list\(updated\)\), date\(".{0,20}"\)\)\n```'
+LEARNING_TABLE = r'```dataview\n\s*TABLE updated as "Updated", title as "Title", summary as "Summary"\n\s*FROM "Subjects" OR "Courses"\n\s*WHERE file.mtime >= date\(".{0,20}"\) - dur\(\d day\)\n```'
 
-READING_TABLE = r'## Reading\n\n```dataview\n\s*TABLE title as "Publication", author as "Author", finished as "Finished"\n\s*FROM "Reading"\n\s*WHERE contains\(flat\(list\(\s*updated\s*\)\), date\(".{0,20}"\)\)\n```'
+READING_TABLE = r'## Reading Updates\n\n```dataview\n\s*TABLE title as "Publication", author as "Author", finished as "Finished\?"\n\s*FROM "Reading"\n\s*WHERE file.mtime >= date\(".{0,20}"\) - dur\(\d day\)\n```'
 
-WORKOUT_TABLE = r'```dataview\nTABLE type as "Workout Type", mood as "Overall Mood", effort as "Overall Effort"\s*\nFROM "Fitness"\nWHERE date\(split\(transpired, " "\)\[0\]\) = date\(".{0,20}"\)\n```'
+WORKOUT_TABLE = r'```dataview\n\s*TABLE type as "Workout Type", mood as "Overall Mood", effort as "Overall Effort"\s*\n\s*FROM "Fitness"\nWHERE file.ctime >= date\(".{0,20}"\) - dur\(\d day\)\n```'
 
-MEETINGS_TABLE = r'```dataview\n\s*TABLE summary as "Summary", attendees as "Attendees"\n\s*FROM "Meetings"\n\s*WHERE date\(split\(transpired, " "\)\[0\]\) = date\(".{0,20}"\)\n```'
+MEETINGS_TABLE = r'```dataview\n\s*TABLE summary as "Summary", attendees as "Attendees", file.cday as "Cday"\n\s*FROM "Meetings"\n\s*WHERE file.cday = date\(".{0,20}"\)\n```'
 
-REVISIT_TABLE = r'```dataview\n\s*TABLE contacted as "Last Contacted"\s*\n\s*FROM "People"\n\s*WHERE revisit = "True"\n\s*AND date\(split\(contacted, " "\)\[0\]\) <= date\(".{0,20}"\) - dur\(\d month\)\n```'
+REVISIT_TABLE = r'```dataview\n\s*TABLE contacted as "Last Contacted"\s*\n\s*FROM "People"\n\s*WHERE revisit = "True"\n\s*AND date\(contacted, "yyyy-MM-dd T"\) <= date\(".{0,20}"\) - dur\(\d month\)\n```'
 
 WORKOUT_REPLACEMENT = r'```dataview\nTABLE title as "Title", type as "Type"\nFROM #health OR #fitness AND !"Extras"\nWHERE date(transpired) = date(this.created)\nOR date(created) = date(this.created)\n```'
 
@@ -50,7 +50,7 @@ def fix_daily_notes(root_path):
         )
         remove_revisit_table = sap.remove_in_file(file_path, REVISIT_TABLE)
         rename_workouts = sap.replace_in_file(
-            file_path, "## Workouts", "## Health & Fitness", regex=False
+            file_path, "## Workout Updates", "## Health & Fitness", regex=False
         )
         workout_relacement = sap.replace_in_file(
             file_path,
@@ -59,7 +59,7 @@ def fix_daily_notes(root_path):
             format_function=sap.format_on_property_values,
         )
         rename_meetings = sap.replace_in_file(
-            file_path, "## Meetings", "## Hobbies", regex=False
+            file_path, "## Meeting Updates", "## Hobbies", regex=False
         )
         replace_meetings = sap.replace_in_file(
             file_path,
@@ -90,7 +90,7 @@ def fix_daily_notes(root_path):
 
 
 def main():
-    root_path = BASE_PATH + "Periodicals/Dailys/2025/January/"
+    root_path = BASE_PATH + "Periodicals/Dailys/2024/July/"
     fix_daily_notes(root_path)
 
 
