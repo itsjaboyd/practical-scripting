@@ -99,6 +99,8 @@ def delete_property(file_path, key, write=True):
 
 def add_property(file_path, key, value):
     read_lines = common.read_file_lines(file_path)
+    if has_property_key(read_lines, key):
+        return None
     start, end = get_property_delimeter_indeces(read_lines)
     if start is None or end is None:
         return False
@@ -194,6 +196,16 @@ def get_property_json(file_path, dictionary=True):
     return property_lookup
 
 
+def rename_property_key(file_path, key, replacement):
+    read_lines = common.read_file_lines(file_path)
+    index = has_property_key(read_lines, key, return_index=True)
+    key, replacement = f"{key}:", f"{replacement}:"
+    if isinstance(index, int):
+        replaced = read_lines[index].replace(key, replacement)
+        read_lines[index] = replaced
+    return common.write_file_lines(file_path, read_lines)
+
+
 def get_property_keys(file_path):
     # return the property keys as a list.
     pass
@@ -209,7 +221,7 @@ def guess_property_type(file_path, key):
     pass
 
 
-def file_has_frontmatter(file_path):
+def file_has_properties(file_path):
     # return boolean based on if property exists or not.
     pass
 
