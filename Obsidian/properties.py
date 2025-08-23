@@ -199,6 +199,23 @@ def get_property_json(file_path, dictionary=True):
         property_lookup[key] = value
     return property_lookup
 
+def write_property_json(file_path, properties, replace=True):
+    if not isinstance(properties, dict):
+        raise ValueError("Supplied properties is not a dictionary!")
+    pass
+
+
+def build_properties_lines(properties):
+    # given a dictionary of properties, turn it into file lines.
+    pass
+
+
+def delete_properties(file_path):
+    read_lines = common.read_file_lines(file_path)
+    start, end = get_property_delimeter_indeces(read_lines)
+    read_lines = read_lines[:start] + read_lines[end + 1:]
+    return common.write_file_lines(file_path, read_lines)
+
 
 def rename_property_key(file_path, key, replacement):
     read_lines = common.read_file_lines(file_path)

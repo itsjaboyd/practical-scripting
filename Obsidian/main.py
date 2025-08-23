@@ -13,20 +13,11 @@ if platform.system() == "Darwin":
 else:  # use WSL's path to user notes on windows WSL
     BASE_PATH = "/mnt/c/Users/basonjoyd/Tracking/"
 
-bad_hobbies = r'```dataview\s*\n\s*TABLE summary as "Summary", attendees as "Attendees"\s*\n\s*FROM "Meetings"\s*\n\s*WHERE file.cday = date\(".{0,20}"\)\n```'
-hobbies_replace = """```dataview
-TABLE title as "Title", type as "Type"
-FROM #hobby AND !"Extras"
-WHERE date(transpired) = date(this.created)
-```"""
 
 def main():
-    root_path = BASE_PATH + "Periodicals/Dailys/2024/August/"
-    files = common.gather_files(root_path)
-    for file_path in files:
-        result = sap.replace_in_file(file_path, bad_hobbies, hobbies_replace)
-        print(file_path, result)
-
+    note_path = BASE_PATH + "Testing/2025-07-08.md"
+    result = properties.delete_properties(note_path)
+    print(result)
 
 if __name__ == "__main__":
     main()
