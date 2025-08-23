@@ -175,9 +175,13 @@ def replace_property(file_path, keys, values):
     pass
 
 
-def print_property(file_path):
+def print_property(file_path, key):
     # print what is currently in property to the console.
-    pass
+    properties = get_property_json(file_path)
+    if key not in properties:
+        raise ValueError(f"{key} was not found in properties!")
+    print(properties[key])
+
 
 
 def get_property_json(file_path, dictionary=True):
@@ -207,13 +211,13 @@ def rename_property_key(file_path, key, replacement):
 
 
 def get_property_keys(file_path):
-    # return the property keys as a list.
-    pass
+    properties = get_property_json(file_path)
+    return properties.keys()
 
 
 def get_property_values(file_path):
-    # return the property values as a list.
-    pass
+    properties = get_property_json(file_path)
+    return properties.values()
 
 
 def guess_property_type(file_path, key):
