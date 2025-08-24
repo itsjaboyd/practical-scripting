@@ -165,23 +165,12 @@ def redact_property(file_path):
     pass
 
 
-def remove_property(file_path):
-    # remove the property portion entirely.
-    pass
-
-
-def replace_property(file_path, keys, values):
-    # replace property key(s) with new value(s).
-    pass
-
-
 def print_property(file_path, key):
     # print what is currently in property to the console.
     properties = get_property_json(file_path)
     if key not in properties:
         raise ValueError(f"{key} was not found in properties!")
     print(properties[key])
-
 
 
 def get_property_json(file_path, dictionary=True):
@@ -199,21 +188,43 @@ def get_property_json(file_path, dictionary=True):
         property_lookup[key] = value
     return property_lookup
 
+
 def write_property_json(file_path, properties, replace=True):
-    if not isinstance(properties, dict):
-        raise ValueError("Supplied properties is not a dictionary!")
-    pass
+    property_lines = build_properties_lines(properties, delimeters=replace)
+    if replace:
+        if delete_properties(file_path):
+            return common.file_add_lines(file_path, property_lines, index=0)
+        return False
+    start, end = get_property_delimeter_indeces(read_lines)
+    return common.file_add_lines(file_path, property_lines, index=end)
 
 
-def build_properties_lines(properties):
+def build_properties_lines(properties, delimeters=True):
     # given a dictionary of properties, turn it into file lines.
-    pass
+    property_lines = [PROPERTY_DELIMETER] if delimeters else []
+    for key in properties:
+        match properties[key]:
+            case list():
+                property_lines.append(f"{key}:\n")
+                for item in properties[key]:
+                    property_lines.append(f"  - {item}\n")
+            case bool():
+                value = properties[key]
+                line_format = f"{key}: {'true' if value else 'false'}\n"
+                property_lines.append(line_format)
+            case _:
+                line_format = f"{key}: {properties[key]}\n"
+                property_lines.append(line_format)
+    if delimeters:
+        property_lines.append(PROPERTY_DELIMETER)
+    return property_lines
 
 
 def delete_properties(file_path):
+    # remove the properties section entirely
     read_lines = common.read_file_lines(file_path)
     start, end = get_property_delimeter_indeces(read_lines)
-    read_lines = read_lines[:start] + read_lines[end + 1:]
+    read_lines = read_lines[:start] + read_lines[end + 1 :]
     return common.write_file_lines(file_path, read_lines)
 
 

@@ -114,7 +114,7 @@ def add_content(supplied_content, addition, index=-1):
 def file_add_lines(file_path, lines_list, index=-1):
     read_lines = read_file_lines(file_path)
     read_lines = add_lines(read_lines, lines_list, index=index)
-    return file_write_lines(file_path, read_lines)
+    return write_file_lines(file_path, read_lines)
 
 
 def file_strip_whitespace(file_path):

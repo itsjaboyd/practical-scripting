@@ -16,7 +16,12 @@ else:  # use WSL's path to user notes on windows WSL
 
 def main():
     note_path = BASE_PATH + "Testing/2025-07-08.md"
-    result = properties.delete_properties(note_path)
+    new_properties = {
+        "fligma": "Jason Boyd",
+        "booga": "801-529-0853",
+        "sugma": ["apple", "orange", "banana"],
+    }
+    result = properties.write_property_json(note_path, new_properties)
     print(result)
 
 if __name__ == "__main__":
