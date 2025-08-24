@@ -1,5 +1,8 @@
 import common
 import pathlib
+import importlib
+
+sap = importlib.import_module("search-and-replace")
 
 PROPERTY_DELIMETER = "---\n"
 
@@ -150,14 +153,32 @@ def extract_property_key_line(read_line):
     return separated[0].strip()
 
 
-def alphatbetize_property(file_path):
+def alphabetize_property(file_path, replace=True):
     # take the property list and alphabetize it.
-    pass
+    properties = get_property_json(file_path)
+    sorted_properties = dict(sorted(properties.items()))
+    return write_property_json(file_path, sorted_properties, replace=replace)
 
 
-def group_property(file_path, alphabetize=True):
+def group_property(file_path, alphabetize=True, replace=True):
     # take the property, group it by type, and optionally alphabetize it.
-    pass
+    items = []
+    lookup = {"texts": [], "numbers": [], "checks": [], "dates": [], "lists": []}
+    properties = get_property_json(file_path)
+    for key, value in properties.items():
+        if isinstance(value, list):
+            lookup["lists"].append((key, value))
+        elif value.lower() == "true" or value.lower() == "false":
+            lookup["checks"].append((key, value))
+        elif value.replace(".", "", 1).isdigit():
+            lookup["numbers"].append((key, value))
+        elif sap.is_in_contents(value, sap.ISO_DATE_REGEX):
+            lookup["dates"].append((key, value))
+        else:  # the most typical value in properties are just text
+            lookup["texts"].append((key, value))
+    for key in lookup:
+        items.extend(sorted(lookup[key]) if alphabetize else lookup[key])
+    return write_property_json(file_path, dict(items), replace=replace)
 
 
 def redact_property(file_path):

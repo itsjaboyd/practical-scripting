@@ -6,7 +6,8 @@ import importlib
 properties = importlib.import_module("properties")
 
 DATAVIEW_DELIMETER = "```dataview"
-DATAVIEW_QUERY_REGEX = r"`{3}dataview([^`{3}]|\n)*`{3}"
+DATAVIEW_QUERY_REGEX = r'`{3}dataview([^`{3}]|\n)*`{3}'
+ISO_DATE_REGEX = r'\d{4}-\d{2}-\d{2}'
 
 
 def is_in_contents(contents, pattern, regex=True):
