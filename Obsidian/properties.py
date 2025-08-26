@@ -8,16 +8,8 @@ PROPERTY_DELIMETER = "---\n"
 
 
 # TODO:
-# 2. Have get_property_value return indeces so other function can use these.
 # 3. instead of handing read_lines everywhere, write a function to get property lines.
 # 4. Write some of the more useful functions since those will be used in others.
-
-
-# THIS IS BAD FUNCTION, READ_FILE_LINES NEEDS FILE PATH!
-def get_read_lines(contents):
-    if isinstance(contents, list):
-        return contents
-    return common.read_file_lines(contents)
 
 
 def has_property(read_lines):
@@ -25,6 +17,11 @@ def has_property(read_lines):
     for line in read_lines:
         count = count + 1 if line == PROPERTY_DELIMETER else count
     return True if count == 2 else False
+
+
+def file_has_properties(file_path):
+    read_lines = common.read_file_lines(file_path)
+    return has_property(read_lines)
 
 
 def get_property_delimeter_indeces(read_lines):
@@ -182,8 +179,10 @@ def group_property(file_path, alphabetize=True, replace=True):
 
 
 def redact_property(file_path):
-    # replace property values with some redacted nullified field.
-    pass
+    properties = get_property_json(file_path)
+    for key in properties:
+        properties[key] = "REDACTED"
+    return write_property_json(file_path, properties)
 
 
 def print_property(file_path, key):
@@ -267,25 +266,3 @@ def get_property_keys(file_path):
 def get_property_values(file_path):
     properties = get_property_json(file_path)
     return properties.values()
-
-
-def guess_property_type(file_path, key):
-    # guess the property key type based on its value.
-    pass
-
-
-def file_has_properties(file_path):
-    # return boolean based on if property exists or not.
-    pass
-
-
-class Properties:
-
-    PROPERTY_DELIMETER = "---\n"
-
-    def __init__(file_path):
-        self.properties = {}
-        pass
-
-    def __str__():
-        pass
