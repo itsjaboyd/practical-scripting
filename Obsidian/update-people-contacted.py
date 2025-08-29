@@ -26,13 +26,6 @@ def update_contacted_automatic():
         truncated_meeting = str(meeting).replace(MEETINGS_DIRECTORY, "")
         if truncated_meeting not in saved_meetings:
             update_meetings_list.append(meeting)
-
-
-    print("-----UPDATE MEETINGS LIST-----")
-    for el in update_meetings_list:
-        print(el)
-
-
     for meeting in update_meetings_list:
         results = update_contacted_from_meeting(meeting)
         total_results.append((meeting, results))
