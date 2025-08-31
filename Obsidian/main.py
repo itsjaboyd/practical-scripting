@@ -6,6 +6,7 @@ common = importlib.import_module("common")
 properties = importlib.import_module("properties")
 sap = importlib.import_module("search-and-replace")
 upc = importlib.import_module("update-people-contacted")
+obsidian = importlib.import_module("obsidian")
 
 
 if platform.system() == "Darwin":
@@ -15,9 +16,8 @@ else:  # use WSL's path to user notes on windows WSL
 
 
 def main():
-    note_path = BASE_PATH + "Testing/2025-08-24.md"
-    alphabetized = properties.group_property(note_path)
-    print(alphabetized)
+    result = obsidian.open_daily_note()
+    print(result)
 
 if __name__ == "__main__":
     main()
