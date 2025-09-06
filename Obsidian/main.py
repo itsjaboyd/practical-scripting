@@ -15,9 +15,8 @@ else:  # use WSL's path to user notes on windows WSL
 
 
 def main():
-    note_path = BASE_PATH + "Testing/2025-08-24.md"
-    alphabetized = properties.group_property(note_path)
-    print(alphabetized)
+    pass
+
 
 if __name__ == "__main__":
     main()

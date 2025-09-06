@@ -12,8 +12,8 @@ if platform.system() == "Darwin":
 else:  # use WSL's path to user notes on windows WSL
     BASE_PATH = "/mnt/c/Users/basonjoyd/Tracking/"
 
-MEETINGS_DIRECTORY = BASE_PATH + "Meetings/"
-PEOPLE_DIRECTORY = BASE_PATH + "People/"
+MEETINGS_DIRECTORY = BASE_PATH + "Community/Meetings/"
+PEOPLE_DIRECTORY = BASE_PATH + "Community/People/"
 UPDATED_JSON = BASE_PATH + "Extras/Other/meetings.json"
 
 
