@@ -6,6 +6,7 @@ common = importlib.import_module("common")
 properties = importlib.import_module("properties")
 sap = importlib.import_module("search-and-replace")
 upc = importlib.import_module("update-people-contacted")
+obsidian = importlib.import_module("obsidian")
 
 
 if platform.system() == "Darwin":
